@@ -3,22 +3,13 @@ MY_EXCEPTION_CODE_UNK = -100
 
 class MyException(Exception):
 
-    def __init__(self, stext: str, ncode: int, exreason: Exception):
-        """
-        @type stext: str
-        @type ncode: int
-        @type exreason: Exception
-        """
-        self.text = stext
+    def __init__(self, message, ncode, reason, *args):
+        super().__init__(message, *args)
         self.code = ncode
-        self.reason = exreason
+        self.reason = reason
 
-    def __init__(self, stext: str, ncode: int):
-        """
-        @type stext: str
-        @type ncode: int
-        """
-        self.text = stext
+    def __init__(self, message, ncode, *args):
+        super().__init__(message, *args)
         self.code = ncode
         self.reason = None
 
@@ -29,8 +20,6 @@ class MyException(Exception):
             s = ""
         if isinstance(self.code, int):
             s = s + " NCODE={:d}".format(self.code)
-        if isinstance(self.text, str):
-            s = s + " text={:s}".format(self.text)
         if self.reason is not None:
             sc = self.reason.__class__
             s = s + \
@@ -38,8 +27,6 @@ class MyException(Exception):
                 ":" + self.reason.__str__()
         return s
 
-    def gettext(self):
-        return self.text
-
     def getcode(self):
         return self.code
+

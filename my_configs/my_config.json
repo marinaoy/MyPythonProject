@@ -1,0 +1,16 @@
+{
+  "main_config": "ege_sample_config",
+
+  "myconfig": {
+    "file": "my_in\\myFile.txt",
+    "toolFactoryClass": "MyFileSample",
+    "toolFactoryModule": "mysample.my_impl"
+  },
+
+  "ege_sample_config": {
+    "toolFactoryClass": "EGESample",
+    "toolFactoryModule": "ege_sample.ege_sample",
+    "toolTitle": "Пример из ЕГЕ C4!",
+    "out_file": "my_out\\ege_seq.txt"
+  }
+}

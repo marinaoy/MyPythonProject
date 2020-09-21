@@ -15,15 +15,19 @@ class MyUnknown(MyArgsExe):
     def __init__(self):
         pass
 
-    def create_instance(self, **args):
+    @classmethod
+    def create_instance(cls, **args):
+        return MyUnknown()
+
+    def create_exe_instance(self, **args):
         return MyUnknown()
 
     def release(self):
         pass
 
     def exe_args(self, **args):
-        raise MyException(stext="Я неизвестный науке зверь!", ncode=-300)
-
+        smsg = "" + self.__module__ + "."  + self.__class__.__name__
+        raise MyException("Я неизвестный науке зверь!" + smsg , -300)
 
 class MyFileSample(MyArgsExe):
     file = None
@@ -31,7 +35,11 @@ class MyFileSample(MyArgsExe):
     def __init__(self):
         pass
 
-    def create_instance(self, **args):
+    @classmethod
+    def create_instance(cls, **args):
+        return MyFileSample()
+
+    def create_exe_instance(self, **args):
         return MyFileSample()
 
     def release(self):
@@ -43,14 +51,14 @@ class MyFileSample(MyArgsExe):
 
     def exe_args(self, **args):
         if self.file is not None:
-            raise MyException(stext="Некий файл уже в работе!", ncode=-101)
+            raise MyException("Некий файл уже в работе!", -101)
         if args is None:
             args = {}
         try:
             # считаем слова, логируем результат.
             filename = args.get(FILENAME_ARG)
             if filename is None:
-                raise MyException(stext="не указано имя файла", ncode=-102)
+                raise MyException("не указано имя файла", -102)
             with open(filename, 'r+', encoding='utf-8') as self.file:
                 file_data = self.file.read()
                 words = file_data.split(" ")
@@ -62,28 +70,23 @@ class MyFileSample(MyArgsExe):
                 self.release()
 
                 if final_word_count > 10:
-                    # e0: Exception = Exception("WOW!")
-                    # raise e0
                     raise my_exceptions.MyException(
-                        stext='Очень много слов {:d}! Устай!'.format(
-                            final_word_count),
-                        ncode=-10)
+                        'Очень много слов {:d}! Устай!'.format(
+                            final_word_count), -10)
                 return final_word_count
         except my_exceptions.MyException as e:
             logger.exception(e, exc_info=True)
             return e.getcode()
         except OSError as e:
             logger.exception(e, exc_info=True)
-            # print(e)
-            # print(e.with_traceback())
             return -11
         except Exception as e:
             logger.error("Неопознанная ошибка: %s", traceback.format_exc())
             try:
                 my = my_exceptions.MyException(
-                    stext='что-то сдохло',
-                    ncode=my_exceptions.MY_EXCEPTION_CODE_UNK,
-                    exreason=e)
+                    'что-то сдохло',
+                    my_exceptions.MY_EXCEPTION_CODE_UNK,
+                    e)
                 raise my
             except Exception as mye:
                 tb = sys.exc_info()[2]

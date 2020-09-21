@@ -1,8 +1,10 @@
+import sys
 import json
 import logging.config
 from typing import Dict, Any
 
 import myutils.my_utils
+import myutils.my_def
 import myutils.my_exceptions
 
 # logging.config.fileConfig('my_configs\\Mylogging.ini',
@@ -23,18 +25,9 @@ logger.info('Настройка логгирования окончена!')
 
 objexe = None
 
-#
-class MyConfigReader(object):
-    def __init__(self):
-        pass
-
-    def readArgs(self):
-        from mysample.my_impl_declare import TOOLKIT
-        return dict(toolname='FILEWORDS', file='my_in\\myFile.txt',
-                    toolkit=TOOLKIT)
-
 
 if __name__ == '__main__':
+    from myutils.my_configs import MyJsonConfigReader as MyConfigReader
     args = MyConfigReader().readArgs()
     nresult: int = -1
     try:
@@ -43,7 +36,7 @@ if __name__ == '__main__':
         nresult = objexe.exe_args(**args)
     except myutils.my_exceptions.MyException as ex:
         nresult = ex.getcode()
-        logger.exception(ex.gettext(), exc_info=True)
+        logger.exception(ex, exc_info=True)
     except Exception as ex:
         nresult = -10
         logger.exception(ex, exc_info=True)
@@ -54,4 +47,7 @@ if __name__ == '__main__':
         if objexe is not None:
             myutils.my_utils.release_obj(objexe)
         objexe = None
-        logger.info("Result {:d}".format(nresult))
+        if isinstance(nresult, int):
+            logger.info("Result {:d}".format(nresult))
+        else:
+            logger.info("Result {}".format(nresult))
