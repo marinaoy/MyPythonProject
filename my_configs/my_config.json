@@ -1,5 +1,5 @@
 {
-  "main_config": "ege_sample_config",
+  "main_config": "blood_test",
 
   "myconfig": {
     "file": "my_in\\myFile.txt",
@@ -12,5 +12,19 @@
     "toolFactoryModule": "ege_sample.ege_sample",
     "toolTitle": "Пример из ЕГЕ C4!",
     "out_file": "my_out\\ege_seq.txt"
+  },
+  "blood_test": {
+    "toolFactoryClass": "BloodAnalyzer",
+    "toolFactoryModule": "medical.blood_analyzer",
+    "toolTitle": "Анализ показателя 01",
+    "indicators": {
+      "indicator_01": {
+        "toolmodule": "medical.blood_indicator",
+        "toolclass": "BloodIndicator01",
+        "minValue": "0",
+        "maxValue": "10",
+        "color": "black"
+      }
+    }
   }
 }

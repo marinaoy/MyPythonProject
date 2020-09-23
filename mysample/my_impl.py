@@ -19,9 +19,6 @@ class MyUnknown(MyArgsExe):
     def create_instance(cls, **args):
         return MyUnknown()
 
-    def create_exe_instance(self, **args):
-        return MyUnknown()
-
     def release(self):
         pass
 

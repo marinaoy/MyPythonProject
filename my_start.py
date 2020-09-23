@@ -1,11 +1,13 @@
 import sys
 import json
 import logging.config
-from typing import Dict, Any
+from io import BufferedWriter
+from typing import Dict, Any, IO
 
 import myutils.my_utils
 import myutils.my_def
 import myutils.my_exceptions
+import encodings
 
 # logging.config.fileConfig('my_configs\\Mylogging.ini',
 #                           disable_existing_loggers=False)
@@ -50,4 +52,9 @@ if __name__ == '__main__':
         if isinstance(nresult, int):
             logger.info("Result {:d}".format(nresult))
         else:
-            logger.info("Result {}".format(nresult))
+            try:
+                sResult = json.dumps(nresult, indent=2, ensure_ascii=False)
+                logger.info("Result {0}".format(nresult))
+                logger.info("Result as json string {0}".format(sResult))
+            except Exception as logEx:
+                logger.warning("Exception on loggin result", exc_info=True)

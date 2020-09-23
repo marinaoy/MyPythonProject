@@ -29,12 +29,6 @@ class EGESample(MyArgsExe):
             instanceObject.outFile = strFileOut
         return instanceObject
 
-    def create_exe_instance(self, **args):
-        instanceObject = EGESample()
-        strTitle = args.get(TOOL_TITLE_ARG)
-        if (strTitle is not None):
-            instanceObject.title = self.title
-        return instanceObject
 
     def release(self):
         pass
