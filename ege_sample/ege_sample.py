@@ -29,6 +29,8 @@ class EGESample(MyArgsExe):
             instanceObject.outFile = strFileOut
         return instanceObject
 
+    def create_exe_instance(self, **args):
+        return self.create_instance(**args)
 
     def release(self):
         pass
@@ -66,11 +68,12 @@ class EGESample(MyArgsExe):
 
             if (self.outFile is not None):
                 if (nNeedItems < 2):
+                    # это уже не первый элемент, надо файл на добавление и
+                    # запятую не забыть
                     with open(self.outFile, 'a', encoding='utf-8') as f:
                        f.write("," + sInput)
                 else:
-                    with open(self.outFile, 'w', encoding='utf-8') as \
-                            self.writeFile:
+                    with open(self.outFile, 'w', encoding='utf-8') as f:
                         f.write(sInput)
 
             if (nNeedItems > 0):
@@ -99,7 +102,7 @@ class EGESample(MyArgsExe):
                 print("Нет!!! не угадали!")
         print('ЧАО!!!')
         if (self.outFile is not None) and (nNeedItems < 2):
-            with open(self.outFile, 'a', encoding='utf-8') as self.writeFile:
+            with open(self.outFile, 'a', encoding='utf-8') as f:
                 f.write("({:d})".format(r_check))
 
         return r_check
