@@ -42,8 +42,10 @@
     },
     "tools": {
       "apply_tools_list": [
+        "age_src",
         "patient",
-        "first_med_test"
+        "first_med_test",
+        "age_res"
       ],
       "toolSets": [
         {
@@ -64,6 +66,22 @@
             "tool_class": "ApplyIndicator01",
             "tool_module": "medical.indicator00_10",
             "med_test_indicator": "first_med_test"
+          },
+          "age_res": {
+            "tool_class": "ApplyInterval",
+            "tool_module": "medical.indicator00_10",
+            "value_source": ["res", "patient"],
+            "value_name": "WEIGHT.kg",
+            "min_v":18,
+            "max_v":55
+          },
+          "age_src": {
+            "tool_class": "ApplyInterval",
+            "tool_module": "medical.indicator00_10",
+            "value_source": ["src"],
+            "value_name": "WEIGHT.kg",
+            "min_v":18,
+            "max_v":55
           }
         },
         {

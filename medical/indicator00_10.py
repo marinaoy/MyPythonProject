@@ -39,7 +39,28 @@ logger = logging.getLogger(__name__)
 
 AboutValue = namedtuple('AboutValue', 'what_b why_dict')
 
+Bound = namedtuple('Bound', 'min_v max_v')
+
 Money = namedtuple('Money', '{0} {1}'.format(SUM, CURRENCY))
+
+class ApplyBound(Bound):
+    def verify(self, value) -> AboutValue:
+       if self.min_v is None:
+           pass
+       else:
+           if (value is None) or (value < self.min_v):
+               return AboutValue(False,
+                                 {"borders violated":
+                                   "{0} < {1}".format(value, self.min_v)})
+       if self.max_v is None:
+           pass
+       else:
+           if (value is None) or (value > self.max_v):
+               return AboutValue(False,
+                                 {"borders violated":
+                                   "{0} > {1}".format(value, self.max_v)})
+       return AboutValue(True, {})
+
 
 class ApplyIndicator01(ToolApplied):
     # вычисляет значение возраста-пола в принятой данной группой
@@ -241,6 +262,87 @@ class ApplyIndicator02(ToolApplied):
             result.setFailReason({"Shit happens": sReason})
             return result
 
+
+class ApplyInterval(ToolApplied):
+    def __init__(self):
+        super().__init__()
+        self.value_name = ''
+        # src, res - исходные или результат
+        self.value_source = ['src']
+        self.value_bound = ApplyBound(None, None)
+
+    def _initAsConfig(self, sName: str, **cfgDict):
+        super()._initAsConfig(sName, **cfgDict)
+        self.value_name = cfgDict.get("value_name",
+                                   '')
+        self.value_source = cfgDict.get("value_source",
+                                   ['src'])
+        min_v = None
+        if ('min_v' in cfgDict.keys()):
+            min_v = cfgDict.get('min_v')
+            min_v = float(min_v)
+        max_v = None
+        if ('max_v' in cfgDict.keys()):
+            max_v = cfgDict.get('max_v')
+            max_v = float(max_v)
+
+        self.value_bound = ApplyBound(min_v, max_v)
+
+    @classmethod
+    def create_instance(cls):
+        return ApplyInterval()
+
+    def impl_apply(self, env: ToolExeEnv) -> ToolApplyResult:
+        # оценивает результаты person
+        # не слишком ли пациент старый, толстый, нищий...
+        # и решает стоит ли его лечить
+        result = ToolApplyResult()
+        about_v: AboutValue
+        b_good = True
+        try :
+            v: object
+            if 'src' == self.value_source[0]:
+                v = env.getSrcDataValue(self.value_name)
+            elif 'res' == self.value_source[0]:
+                res_name = None
+                vkey = list()
+                i = 0
+                while i < len(self.value_source):
+                    if i > 0:
+                        if i == 1:
+                            res_name = self.value_source[i]
+                        else:
+                            vkey.append(self.value_source[i])
+                    i=i+1
+                vkey.append(self.value_name)
+                v = env.getResultDataValue(res_name, vkey)
+            else:
+                raise MyException("Unknown value source {0}".format(
+                    self.value_source), -200)
+
+            v_float = float(v)
+            about_v = self.value_bound.verify(v_float)
+            b_good = b_good & about_v.what_b
+
+            result.updateValues({"b_value": b_good})
+            if b_good:
+                result.updateValues({"Norma": v_float})
+            else:
+                result.updateValues({"Problem": v_float})
+                result.updateValues(about_v.why_dict)
+            result.setComplete(True)
+            return result
+
+        except WaitDataException as ex:
+            result.setComplete(False)
+            result.setFailReason({"data_required": ex.getWaitList()})
+            return result
+        except Exception as ex:
+            sReason = "On error {0}".format(ex)
+            logger.exception(sReason, exc_info=True)
+            result.setComplete(False)
+            result.setFailReason({"Shit happens": sReason})
+            return result
 
 
 
