@@ -1,0 +1,39 @@
+{
+  "analyz": "analyz01",
+  "analyz01": {
+    "data": {
+      "DateBirth": "1961-10-02",
+      "SEX": "Female",
+      "WEIGHT.kg": 60,
+      "HEIGHT.cm": 169,
+      "MONEY": {
+        "CURRENCY": "USD",
+        "SUM": 500.15
+      },
+      "data_frames": {
+        "dataFrame01": {
+          "data_reader": "csv",
+          "file_name": "my_configs\\data4analyz.csv",
+          "delimiter": ";"
+        },
+        "dataFrame02": {
+          "data_reader": "csv",
+          "file_name": "my_configs\\data4analyz.csv",
+          "delimiter": ";",
+          "names": [
+            "y",
+            "x1",
+            "x2"
+          ]
+        }
+      }
+    },
+    "tools": {
+      "tools_file": "my_configs\\tools.json",
+      "tools_key": "toolsSet01",
+      "applay_list": ["medic01","age", "sex", "person"]
+    },
+    "a": "0",
+    "b": "1"
+  }
+}
