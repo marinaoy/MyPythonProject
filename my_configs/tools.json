@@ -1,11 +1,20 @@
 {
-  "toolsSet01": "analyz01",
   "analyz01": {
-    "medic01": {
+    "medic01-01": {
       "tool_class": "ApplyIndicator02",
       "tool_module": "medical.indicator00_10"
     },
-    "person": {
+    "person-01": {
+      "tool_class": "ApplyIndicator01",
+      "tool_module": "medical.indicator00_10"
+    }
+  },
+  "analyz02": {
+    "medic01-02": {
+      "tool_class": "ApplyIndicator02",
+      "tool_module": "medical.indicator00_10"
+    },
+    "person-02": {
       "tool_class": "ApplyIndicator01",
       "tool_module": "medical.indicator00_10"
     }

@@ -105,21 +105,24 @@ class ToolJsonConfigReader(object):
         with open(self.fileConfigName, 'r', encoding='utf-8') as f:
             dictConfig = json.load(f)
 
-        configName = dictConfig.get(self.mainkey)
+        config = dictConfig.get(self.mainkey)
         try:
-            if configName is None:
+            configMain: dict
+            if config is None:
                 sMsg = getResourceMsg("MSG:Config name is not defined by {0}")
                 raise MyException(sMsg.format(self.mainkey), EX_CONFIG_INVALID)
-            configMain = dictConfig.get(configName)
-            dictConfigMain: dict = configMain
-            if dictConfigMain is None:
-                sMsg = getResourceMsg("MSG:Config is not found by name {0}")
-                raise MyException(sMsg.format(configName), EX_CONFIG_INVALID)
-            return dictConfigMain
+            if isinstance(config, dict):
+                configMain = config
+            else:
+                configMain = dictConfig.get(config)
+                if (configMain is None) or (not isinstance(configMain, dict)):
+                    sMsg = getResourceMsg("MSG:Config is not found by name {0}")
+                    raise MyException(sMsg.format(config), EX_CONFIG_INVALID)
+            return configMain
         except Exception as ex:
             raise MyException(getResourceMsg("MSG:Undefined config {0}:{1}:{"
                                              "2}").format(
-                self.fileConfigName, self.mainkey, configName),
+                self.fileConfigName, self.mainkey, config),
                 EX_CONFIG_INVALID, ex)
 
 
@@ -140,6 +143,9 @@ class ToolApplyResult(OrderedDict):
 
     def updateValues(self, values: dict):
         self.get('val_orddict').update(values)
+
+    def clearValues(self):
+       self.get('val_orddict').clear()
 
     def getFailReason(self) -> OrderedDict:
         return self.get('fail_reason')
@@ -288,24 +294,43 @@ def initTools(cfgDict: dict, cfgKeyTools, cfgKeyApplyList) -> OrderedDict:
         # список инструментов вообще не определен
         return tools
     try:
+        allTools: dict = OrderedDict()
         toolsCfg: dict = cfgDict.get(cfgKeyTools)
         apply_list = toolsCfg.get(cfgKeyApplyList)
-        if TOOLS_FILE_NAME in toolsCfg.keys():
-            if TOOLS_FILE_KEY in toolsCfg.keys():
-                toolsCfg = ToolJsonConfigReader(toolsCfg.get(TOOLS_FILE_NAME),
-                                                mainKey=toolsCfg.get(
-                                                    TOOLS_FILE_KEY)).readMainConfig()
+        toolSets: list = toolsCfg.get("toolSets")
+        for toolSetCfg in toolSets:
+            if not isinstance(toolSetCfg, dict):
+                logger.warning("toolSets item must be dict. Not: {"
+                               "0}".format(json.dumps(toolSetCfg)))
             else:
-                toolsCfg = ToolJsonConfigReader(toolsCfg.get(
-                    TOOLS_FILE_NAME)).readMainConfig()
+             #    разбираем словарь
+             toolsDict : dict
+             if TOOLS_FILE_NAME in toolSetCfg.keys():
+                 # читаем инструменты из файла
+                fileName = toolSetCfg.get(TOOLS_FILE_NAME)
+                if TOOLS_FILE_KEY in toolSetCfg.keys():
+                    # из файла получить указанный набор инструментов
+                    file_toolSetName = toolSetCfg.get(TOOLS_FILE_KEY)
+                    toolsDict = ToolJsonConfigReader(fileName,
+                        mainKey=file_toolSetName).readMainConfig()
+                else:
+                    # из файла получить набор инструментов,
+                    # который в нем по умолчанию
+                    toolsDict = ToolJsonConfigReader(fileName).readMainConfig()
+             else:
+                 # считаем, что это словарь инструментов
+                 toolsDict = toolSetCfg
 
+             allTools.update(toolsDict)
+
+             #завершили цикл - собрали полный словарь инструментов
         if apply_list is None:
-            # пусть работают как попало
-            tools.update(toolsCfg)
+            # если список вызова отсутствует - будут работать как  придется
+            tools.update(allTools)
         else:
             # работать только перечисленным и в указанном порядке
             for apply_name in apply_list:
-                tool = toolsCfg.get(apply_name)
+                tool = allTools.get(apply_name)
                 if tool is None:
                     # конфигурации на этот инструмент нет
                     tool = ToolAppliedNone.create_named_instance(apply_name)

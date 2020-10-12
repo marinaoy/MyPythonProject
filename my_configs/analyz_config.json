@@ -28,10 +28,55 @@
         }
       }
     },
+    "my_comment": {
+      "tools": {
+        "applay_list": [
+          "medic01",
+          "age",
+          "sex",
+          "person"
+        ],
+        "tools_file": "my_configs\\tools.json",
+        "tools_key": "toolsSet01"
+      }
+    },
     "tools": {
-      "tools_file": "my_configs\\tools.json",
-      "tools_key": "toolsSet01",
-      "applay_list": ["medic01","age", "sex", "person"]
+      "apply_tools_list": [
+        "patient",
+        "first_med_test"
+      ],
+      "toolSets": [
+        {
+        "tools_file": "my_configs\\tools.json",
+        "tools_key": "analyz01"
+        },
+        {
+        "tools_file": "my_configs\\tools.json",
+        "tools_key": "analyz02"
+        },
+        {
+          "first_med_test": {
+            "tool_class": "ApplyIndicator02",
+            "tool_module": "medical.indicator00_10",
+            "person_indicator": "patient"
+          },
+          "patient": {
+            "tool_class": "ApplyIndicator01",
+            "tool_module": "medical.indicator00_10",
+            "med_test_indicator": "first_med_test"
+          }
+        },
+        {
+          "medicA-03": {
+            "tool_class": "ApplyIndicator02",
+            "tool_module": "medical.indicator00_10"
+          },
+          "personA-03": {
+            "tool_class": "ApplyIndicator01",
+            "tool_module": "medical.indicator00_10"
+          }
+        }
+      ]
     },
     "a": "0",
     "b": "1"

@@ -31,6 +31,10 @@ WEIGHT_kg = "WEIGHT.kg"
 SEX = "SEX"
 
 DATE_BIRTH = "DateBirth"
+
+PERSON_INDICATOR_DEFAULT = "person"
+first_med_test_INDICATOR_DEFAULT = "first_med_test"
+
 logger = logging.getLogger(__name__)
 
 AboutValue = namedtuple('AboutValue', 'what_b why_dict')
@@ -43,6 +47,13 @@ class ApplyIndicator01(ToolApplied):
 
     def __init__(self):
         super().__init__()
+        self.first_med_test = first_med_test_INDICATOR_DEFAULT
+
+    def _initAsConfig(self, sName: str, **cfgDict):
+        super()._initAsConfig(sName, **cfgDict)
+        self.first_med_test = cfgDict.get(
+            "med_test_indicator",
+            first_med_test_INDICATOR_DEFAULT)
 
     @classmethod
     def create_instance(cls):
@@ -101,7 +112,7 @@ class ApplyIndicator01(ToolApplied):
             # logger.debug(v)
 
 
-            vMedic01 = env.getResultDataValue("medic01",datakeys=["b_medical"])
+            vMedic01 = env.getResultDataValue(self.first_med_test,datakeys=["b_medical"])
             if vMedic01 is None:
                  result.setComplete(False)
             else :
@@ -135,6 +146,11 @@ class ApplyIndicator01(ToolApplied):
 class ApplyIndicator02(ToolApplied):
     def __init__(self):
         super().__init__()
+        self.person_indicator = PERSON_INDICATOR_DEFAULT
+
+    def _initAsConfig(self, sName: str, **cfgDict):
+        super()._initAsConfig(sName, **cfgDict)
+        self.person_indicator = cfgDict.get("person_indicator", PERSON_INDICATOR_DEFAULT)
 
     @classmethod
     def create_instance(cls):
@@ -149,7 +165,7 @@ class ApplyIndicator02(ToolApplied):
         b_good = True
         try :
             # Возраст?
-            v = env.getResultDataValue("person", datakeys=[AGE_y])
+            v = env.getResultDataValue(self.person_indicator, datakeys=[AGE_y])
             if v >= 65:
                 about_v = AboutValue(False, {"about_age": "too old"})
             else:
@@ -159,9 +175,9 @@ class ApplyIndicator02(ToolApplied):
             result.updateValues(about_v.why_dict)
 
             # Тушка?
-            v1 = env.getResultDataValue("person", datakeys=[WEIGHT_kg])
-            v2 = env.getResultDataValue("person", datakeys=[HEIGHT_cm])
-            v3 = env.getResultDataValue("person", datakeys=[SEX])
+            v1 = env.getResultDataValue(self.person_indicator, datakeys=[WEIGHT_kg])
+            v2 = env.getResultDataValue(self.person_indicator, datakeys=[HEIGHT_cm])
+            v3 = env.getResultDataValue(self.person_indicator, datakeys=[SEX])
             if (not isinstance(v3, str) or len(v3) < 1):
                 about_v = AboutValue(False, {"about_sex":
                                                  "unknown {0}".format(v3)})
@@ -184,7 +200,8 @@ class ApplyIndicator02(ToolApplied):
             result.updateValues(about_v.why_dict)
 
             # Деньги?
-            v41 = env.getResultDataValue("person", datakeys=[MONEY, CURRENCY])
+            v41 = env.getResultDataValue(self.person_indicator,
+                                         datakeys=[MONEY, CURRENCY])
             if (v41 is None) or ("RUR" == v41):
                 about_v = AboutValue(False, {"about_currency":
                                                  "it's not money {"
@@ -192,7 +209,7 @@ class ApplyIndicator02(ToolApplied):
                                              "about_money":
                                                  "no money - no "
                                                  "medical care"})
-            v42 = env.getResultDataValue("person",
+            v42 = env.getResultDataValue(self.person_indicator,
                                          datakeys=[MONEY, SUM])
             if (v42 is None)or(v42 < 1000):
                 about_v = AboutValue(False, {"about_money":
